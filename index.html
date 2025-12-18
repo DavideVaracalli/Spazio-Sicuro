@@ -12,7 +12,10 @@ body { margin:0; background: linear-gradient(135deg,#0f0f0f,#1a1a2e); color:#f1f
 h1 { font-weight:600; font-size:1.8em; margin-bottom:16px; text-shadow:1px 1px 4px rgba(0,0,0,0.7); }
 p { color:#d0d0d0; line-height:1.6; }
 button { width:100%; padding:14px; margin-top:16px; background:linear-gradient(90deg,#1c1c1c,#2a2a2a); color:#f1f1f1; border:none; border-radius:12px; font-size:16px; cursor:pointer; transition: background 0.3s, transform 0.2s; }
-button:hover { transform: scale(1.03); } button:active { transform: scale(0.98); } button.recording { background: #8b0000; } button.pulse { animation: pulse 2s infinite; }
+button:hover { transform: scale(1.03); } 
+button:active { transform: scale(0.98); } 
+button.recording { background: #8b0000; } 
+button.pulse { animation: pulse 2s infinite; }
 .hidden { display:none; }
 textarea { width:100%; height:150px; background:#1a1a1a; color:#f1f1f1; border:none; border-radius:12px; padding:12px; font-size:15px; resize:none; margin-top:16px; box-shadow: inset 0 0 10px rgba(255,255,255,0.05); }
 canvas { width:100%; height:240px; background:linear-gradient(to bottom,#1a1a1a,#0f0f0f); border-radius:8px; margin-top:16px; }
@@ -89,7 +92,8 @@ function randomMessage(array){ return array[Math.floor(Math.random()*array.lengt
 
 /* ===== PARTICELLE DI RILASCIO ===== */
 function releaseParticles(){
-  const c = canvas; if(!c) return; const ctx = c.getContext("2d");
+  const c = canvas; if(!c) return;
+  const ctx = c.getContext("2d");
   let releaseParticlesArray = [];
   for(let i=0;i<50;i++){
     releaseParticlesArray.push({
@@ -107,7 +111,10 @@ function releaseParticles(){
       const grad=ctx.createRadialGradient(p.x,p.y,0,p.x,p.y,p.radius);
       grad.addColorStop(0,`rgba(${200+Math.random()*55},${200+Math.random()*55},241,${p.alpha})`);
       grad.addColorStop(1,`rgba(241,241,241,0)`);
-      ctx.fillStyle=grad; ctx.beginPath(); ctx.arc(p.x,p.y,p.radius,0,Math.PI*2); ctx.fill();
+      ctx.fillStyle=grad;
+      ctx.beginPath();
+      ctx.arc(p.x,p.y,p.radius,0,Math.PI*2);
+      ctx.fill();
       p.alpha-=0.01; p.x+=p.dx; p.y+=p.dy;
       if(p.alpha<=0) releaseParticlesArray.splice(i,1);
     });
@@ -140,7 +147,7 @@ function checkText(text,box){
   }else if(harmOthersWords.some(w=>t.includes(w))){
     box.innerHTML=`La vita degli altri ha lo stesso valore della nostra.<br>Rabbia e dolore sono umani.<br>Quando possibile, parlarne con chi può aiutare a chiarire può fare la differenza.`;
     box.classList.add("show"); box.classList.remove("hidden");
-  }else{box.classList.remove("show"); box.classList.add("hidden");}
+  }else{ box.classList.remove("show"); box.classList.add("hidden"); }
 }
 writeText.addEventListener("input", e=>checkText(e.target.value, writeSupport));
 
@@ -153,15 +160,20 @@ if(SR){
   recognition.continuous=true;
   recognition.interimResults=true;
   recognition.onresult=e=>{
-    let text=""; for(let i=0;i<e.results.length;i++) text+=e.results[i][0].transcript;
-    transcript.value=text; checkText(text,voiceSupport);
+    let text="";
+    for(let i=0;i<e.results.length;i++) text+=e.results[i][0].transcript;
+    transcript.value=text;
+    checkText(text,voiceSupport);
   };
 }
-recordBtn.onmousedown=startRec; recordBtn.onmouseup=stopRec; recordBtn.ontouchstart=startRec; recordBtn.ontouchend=stopRec;
+recordBtn.onmousedown=startRec;
+recordBtn.onmouseup=stopRec;
+recordBtn.ontouchstart=startRec;
+recordBtn.ontouchend=stopRec;
 function startRec(){ recordBtn.textContent="🎙️ Sto ascoltando..."; recordBtn.classList.add("recording"); if(recognition) recognition.start(); }
 function stopRec(){ recordBtn.textContent="🎙️ Tieni premuto"; recordBtn.classList.remove("recording"); if(recognition) recognition.stop(); }
 
-/* ===== DRAW (nitido 10s + dissolvenza DOPO) ===== */
+/* ===== DRAW (MODIFICATA) ===== */
 
 const HOLD_TIME = 10000;
 const FADE_SPEED = 0.002;
@@ -172,6 +184,12 @@ let frozen = false;
 let lastX = 0, lastY = 0;
 let stopTime = null;
 let globalAlpha = 1;
+
+/* metriche disegno */
+let strokeCount = 0;
+let horizontal = 0;
+let vertical = 0;
+let startTime = 0;
 
 function initCanvas(){
   const c = canvas;
@@ -184,11 +202,15 @@ function initCanvas(){
   frozen = false;
   stopTime = null;
 
+  strokeCount = 0;
+  horizontal = 0;
+  vertical = 0;
+  startTime = 0;
+  drawSupport.classList.remove("show");
+  drawSupport.classList.add("hidden");
+
   function addParticle(x,y){
-    particles.push({
-      x, y,
-      r: 2.8   // dimensione fissa → immagine più nitida
-    });
+    particles.push({ x, y, r: 2.8 });
   }
 
   c.onpointerdown = e => {
@@ -196,6 +218,12 @@ function initCanvas(){
     frozen = false;
     globalAlpha = 1;
     stopTime = null;
+
+    startTime = Date.now();
+    strokeCount = 0;
+    horizontal = 0;
+    vertical = 0;
+
     lastX = e.offsetX;
     lastY = e.offsetY;
     c.setPointerCapture(e.pointerId);
@@ -204,7 +232,7 @@ function initCanvas(){
   c.onpointerup = e => {
     drawing = false;
     frozen = true;
-    stopTime = Date.now();   // ⏱️ PARTE ORA
+    stopTime = Date.now();
     c.releasePointerCapture(e.pointerId);
   };
 
@@ -218,15 +246,22 @@ function initCanvas(){
 
   c.onpointermove = e => {
     if(!drawing) return;
+
+    strokeCount++;
+    const dx = Math.abs(e.offsetX - lastX);
+    const dy = Math.abs(e.offsetY - lastY);
+    if(dx > dy) horizontal++; else vertical++;
+
     addParticle(e.offsetX, e.offsetY);
     lastX = e.offsetX;
     lastY = e.offsetY;
+
+    checkDrawing();
   };
 
   function animate(){
     ctx.clearRect(0,0,c.width,c.height);
 
-    // 🔒 DISSOLVENZA SOLO DOPO 10s DI IMMOBILITÀ
     if(frozen && stopTime && Date.now() - stopTime > HOLD_TIME){
       globalAlpha -= FADE_SPEED;
       if(globalAlpha < 0) globalAlpha = 0;
@@ -250,15 +285,30 @@ function initCanvas(){
 
   animate();
 }
+let drawSupportShown = false;
 
 function checkDrawing(){
-  const elapsed=(Date.now()-startTime)/1000;
-  if(strokeCount>700 && elapsed<15) showDrawSupport("Sembra che tu stia scaricando molta tensione. Prenderti un momento per respirare può aiutare. Sei al sicuro qui.");
-  if(horizontal>70 && vertical>70) showDrawSupport("Il rispetto per la vita, nostra e degli altri, è fondamentale. Se stai provando rabbia o confusione, parlarne con qualcuno può aiutare.");
+  if(drawSupportShown) return;
+
+  const elapsed = (Date.now() - startTime) / 1000;
+
+  if(strokeCount > 600 && elapsed > 5){
+    drawSupportShown = true;
+    showDrawSupport(
+      "Sembra che tu stia scaricando molta tensione. Prenderti un momento per respirare può aiutare. Sei al sicuro qui."
+    );
+  }
+
+  if(horizontal > 70 && vertical > 70){
+    showDrawSupport("Il rispetto per la vita, nostra e degli altri, è fondamentale. Se stai provando rabbia o confusione, parlarne con qualcuno può aiutare.");
+  }
 }
 
-function showDrawSupport(text){ drawSupport.innerHTML=text; drawSupport.classList.add("show"); drawSupport.classList.remove("hidden"); }
-function resetDrawMetrics(){ strokeCount=0; horizontal=0; vertical=0; startTime=Date.now(); particles=[]; if(drawSupport) drawSupport.classList.remove("show"); if(drawSupport) drawSupport.classList.add("hidden"); }
+function showDrawSupport(text){
+  drawSupport.innerHTML = text;
+  drawSupport.classList.add("show");
+  drawSupport.classList.remove("hidden");
+}
 </script>
 
 </body>
