@@ -205,84 +205,96 @@ recordBtn.ontouchend=stopRec;
 function startRec(){ recordBtn.textContent="🎙️ Sto ascoltando..."; recordBtn.classList.add("recording"); recognition && recognition.start(); }
 function stopRec(){ recordBtn.textContent="🎙️ Tieni premuto"; recordBtn.classList.remove("recording"); recognition && recognition.stop(); }
 
-/* ===== DRAW (mouse + touch + penna) ===== */
-let strokeCount=0,startTime=0,horizontal=0,vertical=0,particles=[];
-const drawSound=new Audio("https://www.soundjay.com/button/sounds/button-16.mp3");
+/* ===== DRAW (nitido 10s + dissolvenza DOPO) ===== */
+
+const HOLD_TIME = 10000;
+const FADE_SPEED = 0.002;
+
+let particles = [];
+let drawing = false;
+let frozen = false;
+let lastX = 0, lastY = 0;
+let stopTime = null;
+let globalAlpha = 1;
 
 function initCanvas(){
-  const c=canvas,ctx=c.getContext("2d");
-  c.width=c.offsetWidth; c.height=c.offsetHeight;
-  let drawing=false,lastX=0,lastY=0;
-  resetDrawMetrics();
+  const c = canvas;
+  const ctx = c.getContext("2d");
+  c.width = c.offsetWidth;
+  c.height = c.offsetHeight;
 
-  function addParticle(x,y,dx,dy){
-    const speed=Math.sqrt(dx*dx+dy*dy);
-    particles.push({x,y,alpha:1,radius:2+Math.min(speed/5,6),dx:(Math.random()-0.5)*0.5,dy:(Math.random()-0.5)*0.5});
+  particles = [];
+  globalAlpha = 1;
+  frozen = false;
+  stopTime = null;
+
+  function addParticle(x,y){
+    particles.push({
+      x, y,
+      r: 2.8   // dimensione fissa → immagine più nitida
+    });
   }
 
-  c.addEventListener("pointerdown",e=>{
-    drawing=true;
-    startTime=Date.now();
-    lastX=e.offsetX; lastY=e.offsetY;
+  c.onpointerdown = e => {
+    drawing = true;
+    frozen = false;
+    globalAlpha = 1;
+    stopTime = null;
+    lastX = e.offsetX;
+    lastY = e.offsetY;
     c.setPointerCapture(e.pointerId);
-    drawSound.play();
-  });
+  };
 
-  c.addEventListener("pointerup",e=>{
-    drawing=false;
+  c.onpointerup = e => {
+    drawing = false;
+    frozen = true;
+    stopTime = Date.now();   // ⏱️ PARTE ORA
     c.releasePointerCapture(e.pointerId);
-  });
+  };
 
-  c.addEventListener("pointerleave",()=>drawing=false);
+  c.onpointerleave = () => {
+    if(drawing){
+      drawing = false;
+      frozen = true;
+      stopTime = Date.now();
+    }
+  };
 
-  c.addEventListener("pointermove",e=>{
+  c.onpointermove = e => {
     if(!drawing) return;
-    strokeCount++;
-    const dx=e.offsetX-lastX,dy=e.offsetY-lastY;
-    if(Math.abs(dx)>Math.abs(dy)) horizontal++;
-    if(Math.abs(dy)>Math.abs(dx)) vertical++;
-    addParticle(e.offsetX,e.offsetY,dx,dy);
-    lastX=e.offsetX; lastY=e.offsetY;
-    drawSound.currentTime=0; drawSound.play();
-    checkDrawing();
-  });
+    addParticle(e.offsetX, e.offsetY);
+    lastX = e.offsetX;
+    lastY = e.offsetY;
+  };
 
   function animate(){
     ctx.clearRect(0,0,c.width,c.height);
-    particles.forEach((p,i)=>{
-      const g=ctx.createRadialGradient(p.x,p.y,0,p.x,p.y,p.radius);
-      g.addColorStop(0,`rgba(220,220,241,${p.alpha})`);
+
+    // 🔒 DISSOLVENZA SOLO DOPO 10s DI IMMOBILITÀ
+    if(frozen && stopTime && Date.now() - stopTime > HOLD_TIME){
+      globalAlpha -= FADE_SPEED;
+      if(globalAlpha < 0) globalAlpha = 0;
+    }
+
+    ctx.globalAlpha = globalAlpha;
+
+    particles.forEach(p=>{
+      const g = ctx.createRadialGradient(p.x,p.y,0,p.x,p.y,p.r);
+      g.addColorStop(0,"rgba(220,220,241,1)");
       g.addColorStop(1,"rgba(241,241,241,0)");
-      ctx.fillStyle=g;
-      ctx.beginPath(); ctx.arc(p.x,p.y,p.radius,0,Math.PI*2); ctx.fill();
-      p.alpha-=0.005; p.x+=p.dx; p.y+=p.dy;
-      if(p.alpha<=0) particles.splice(i,1);
+      ctx.fillStyle = g;
+      ctx.beginPath();
+      ctx.arc(p.x,p.y,p.r,0,Math.PI*2);
+      ctx.fill();
     });
+
+    ctx.globalAlpha = 1;
     requestAnimationFrame(animate);
   }
+
   animate();
 }
 
-function checkDrawing(){
-  const elapsed=(Date.now()-startTime)/1000;
-  if(strokeCount>700&&elapsed<15)
-    showDrawSupport("Sembra che tu stia scaricando molta tensione. Sei al sicuro qui.");
-}
-
-function showDrawSupport(text){
-  drawSupport.innerHTML=text;
-  drawSupport.classList.add("show");
-  drawSupport.classList.remove("hidden");
-}
-
-function resetDrawMetrics(){
-  strokeCount=horizontal=vertical=0;
-  particles=[];
-  if(drawSupport){
-    drawSupport.classList.remove("show");
-    drawSupport.classList.add("hidden");
-  }
-}
 </script>
 
 </body>
