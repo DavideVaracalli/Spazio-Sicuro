@@ -7,83 +7,17 @@
 
 <style>
 * { box-sizing: border-box; font-family: system-ui, -apple-system, BlinkMacSystemFont, sans-serif; }
-body {
-  margin:0;
-  background: linear-gradient(135deg,#0f0f0f,#1a1a2e);
-  color:#f1f1f1;
-  display:flex;
-  justify-content:center;
-  align-items:center;
-  height:100vh;
-}
-.container {
-  width:100%;
-  max-width:420px;
-  padding:24px;
-  text-align:center;
-  animation: fadeIn 0.6s ease;
-}
-h1 {
-  font-weight:600;
-  font-size:1.8em;
-  margin-bottom:16px;
-  text-shadow:1px 1px 4px rgba(0,0,0,0.7);
-}
+body { margin:0; background: linear-gradient(135deg,#0f0f0f,#1a1a2e); color:#f1f1f1; display:flex; justify-content:center; align-items:center; height:100vh; }
+.container { width:100%; max-width:420px; padding:24px; text-align:center; animation: fadeIn 0.6s ease; }
+h1 { font-weight:600; font-size:1.8em; margin-bottom:16px; text-shadow:1px 1px 4px rgba(0,0,0,0.7); }
 p { color:#d0d0d0; line-height:1.6; }
-button {
-  width:100%;
-  padding:14px;
-  margin-top:16px;
-  background:linear-gradient(90deg,#1c1c1c,#2a2a2a);
-  color:#f1f1f1;
-  border:none;
-  border-radius:12px;
-  font-size:16px;
-  cursor:pointer;
-  transition: background 0.3s, transform 0.2s;
-}
-button:hover { transform: scale(1.03); }
-button:active { transform: scale(0.98); }
-button.recording { background: #8b0000; }
-button.pulse { animation: pulse 2s infinite; }
-
+button { width:100%; padding:14px; margin-top:16px; background:linear-gradient(90deg,#1c1c1c,#2a2a2a); color:#f1f1f1; border:none; border-radius:12px; font-size:16px; cursor:pointer; transition: background 0.3s, transform 0.2s; }
+button:hover { transform: scale(1.03); } button:active { transform: scale(0.98); } button.recording { background: #8b0000; } button.pulse { animation: pulse 2s infinite; }
 .hidden { display:none; }
-
-textarea {
-  width:100%;
-  height:150px;
-  background:#1a1a1a;
-  color:#f1f1f1;
-  border:none;
-  border-radius:12px;
-  padding:12px;
-  font-size:15px;
-  resize:none;
-  margin-top:16px;
-  box-shadow: inset 0 0 10px rgba(255,255,255,0.05);
-}
-
-canvas {
-  width:100%;
-  height:240px;
-  background:linear-gradient(to bottom,#1a1a1a,#0f0f0f);
-  border-radius:8px;
-  margin-top:16px;
-  touch-action: none; /* IMPORTANTISSIMO PER TOUCH */
-}
-
-.support {
-  background:#141414;
-  border-left:3px solid #6f9cff;
-  padding:12px;
-  margin-top:16px;
-  font-size:14px;
-  color:#e0e0e0;
-  opacity:0;
-  transition: opacity 0.6s ease;
-}
+textarea { width:100%; height:150px; background:#1a1a1a; color:#f1f1f1; border:none; border-radius:12px; padding:12px; font-size:15px; resize:none; margin-top:16px; box-shadow: inset 0 0 10px rgba(255,255,255,0.05); }
+canvas { width:100%; height:240px; background:linear-gradient(to bottom,#1a1a1a,#0f0f0f); border-radius:8px; margin-top:16px; }
+.support { background:#141414; border-left:3px solid #6f9cff; padding:12px; margin-top:16px; font-size:14px; color:#e0e0e0; opacity:0; transition: opacity 0.6s ease; }
 .support.show { opacity:1; }
-
 @keyframes fadeIn { from { opacity:0; } to { opacity:1; } }
 @keyframes pulse { 0%,100%{transform: scale(1);} 50%{transform: scale(1.05);} }
 </style>
@@ -138,72 +72,94 @@ function openWrite(){ hideAll(); write.classList.remove('hidden'); }
 function openDraw(){ hideAll(); draw.classList.remove('hidden'); initCanvas(); }
 function openVoice(){ hideAll(); voice.classList.remove('hidden'); }
 
-/* ===== MESSAGES ===== */
-const eliminatedMessages=[
+/* ===== MESSAGES CASUALI ===== */
+const eliminatedMessages = [
   "Non avere paura di esprimere i tuoi pensieri. Sfogarsi fa bene.",
   "Liberare ciò che senti è un passo verso il tuo benessere.",
   "Hai fatto bene a lasciare andare ciò che pesava.",
   "Ricorda: esprimersi non è mai sbagliato."
 ];
-const releasedMessages=[
+const releasedMessages = [
   "Hai condiviso il tuo pensiero, anche solo con te stesso.",
   "Ogni parola lasciata andare è un piccolo sollievo.",
   "Bene, hai fatto spazio dentro di te.",
   "Lasciare andare fa parte del prendersi cura di sé."
 ];
-function randomMessage(a){ return a[Math.floor(Math.random()*a.length)]; }
+function randomMessage(array){ return array[Math.floor(Math.random()*array.length)]; }
 
-/* ===== RELEASE ===== */
+/* ===== PARTICELLE DI RILASCIO ===== */
+function releaseParticles(){
+  const c = canvas; if(!c) return; const ctx = c.getContext("2d");
+  let releaseParticlesArray = [];
+  for(let i=0;i<50;i++){
+    releaseParticlesArray.push({
+      x: c.width/2 + (Math.random()-0.5)*c.width/2,
+      y: c.height,
+      alpha: 1,
+      radius: Math.random()*5+2,
+      dy: -(Math.random()*2+1),
+      dx: (Math.random()-0.5)*1
+    });
+  }
+  function animateRelease(){
+    ctx.clearRect(0,0,c.width,c.height);
+    releaseParticlesArray.forEach((p,i)=>{
+      const grad=ctx.createRadialGradient(p.x,p.y,0,p.x,p.y,p.radius);
+      grad.addColorStop(0,`rgba(${200+Math.random()*55},${200+Math.random()*55},241,${p.alpha})`);
+      grad.addColorStop(1,`rgba(241,241,241,0)`);
+      ctx.fillStyle=grad; ctx.beginPath(); ctx.arc(p.x,p.y,p.radius,0,Math.PI*2); ctx.fill();
+      p.alpha-=0.01; p.x+=p.dx; p.y+=p.dy;
+      if(p.alpha<=0) releaseParticlesArray.splice(i,1);
+    });
+    if(releaseParticlesArray.length>0) requestAnimationFrame(animateRelease);
+  }
+  animateRelease();
+}
+
+/* ===== FUNZIONI RELEASE/ELIMINATE ===== */
 function release(){
-  hideAll();
-  done.classList.remove("hidden");
-  done.querySelector("p").innerHTML=randomMessage(releasedMessages);
+  hideAll(); done.classList.remove("hidden");
+  done.querySelector('p').innerHTML=randomMessage(releasedMessages);
+  releaseParticles();
 }
 function eliminate(){
-  hideAll();
-  eliminated.classList.remove("hidden");
-  eliminated.querySelector("p").innerHTML=randomMessage(eliminatedMessages);
+  hideAll(); eliminated.classList.remove("hidden");
+  eliminated.querySelector('p').innerHTML=randomMessage(eliminatedMessages);
+  releaseParticles();
 }
 function reset(){ location.reload(); }
 
-/* ===== SAFETY ===== */
-const selfHarmWords=["suicid","ammazzarm","ucciderm","voglio morire","non voglio vivere","farla finita","farmi del male"];
-const harmOthersWords=["ammazz","uccid","violenza","vendetta","fare del male"];
+/* ===== SAFETY WORDS ===== */
+const selfHarmWords=["suicid","ammazzarm","ucciderm","voglio morire","non voglio vivere","farla finita","farmi del male","vorrei sparire","meglio morto"];
+const harmOthersWords=["ammazz","uccid","male","violen","fare del male","violenza","vendetta","gliela farò pagare","lo uccido","fare male"];
 function checkText(text,box){
   const t=text.toLowerCase();
   if(selfHarmWords.some(w=>t.includes(w))){
-    box.innerHTML="Quello che provi merita ascolto e cura.";
+    box.innerHTML=`La vita è un dono prezioso, anche quando sembra difficile da portare.<br>Quello che provi merita ascolto e cura.<br>Se questo spazio non basta, parlarne con qualcuno può aiutare.`;
     box.classList.add("show"); box.classList.remove("hidden");
-  } else if(harmOthersWords.some(w=>t.includes(w))){
-    box.innerHTML="La vita degli altri ha lo stesso valore della nostra.";
+  }else if(harmOthersWords.some(w=>t.includes(w))){
+    box.innerHTML=`La vita degli altri ha lo stesso valore della nostra.<br>Rabbia e dolore sono umani.<br>Quando possibile, parlarne con chi può aiutare a chiarire può fare la differenza.`;
     box.classList.add("show"); box.classList.remove("hidden");
-  } else {
-    box.classList.remove("show"); box.classList.add("hidden");
-  }
+  }else{box.classList.remove("show"); box.classList.add("hidden");}
 }
-writeText.addEventListener("input",e=>checkText(e.target.value,writeSupport));
+writeText.addEventListener("input", e=>checkText(e.target.value, writeSupport));
 
 /* ===== VOICE ===== */
 let recognition;
-const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
+const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
 if(SR){
-  recognition=new SR();
+  recognition = new SR();
   recognition.lang="it-IT";
   recognition.continuous=true;
   recognition.interimResults=true;
   recognition.onresult=e=>{
-    let text="";
-    for(let i=0;i<e.results.length;i++) text+=e.results[i][0].transcript;
-    transcript.value=text;
-    checkText(text,voiceSupport);
+    let text=""; for(let i=0;i<e.results.length;i++) text+=e.results[i][0].transcript;
+    transcript.value=text; checkText(text,voiceSupport);
   };
 }
-recordBtn.onmousedown=startRec;
-recordBtn.onmouseup=stopRec;
-recordBtn.ontouchstart=startRec;
-recordBtn.ontouchend=stopRec;
-function startRec(){ recordBtn.textContent="🎙️ Sto ascoltando..."; recordBtn.classList.add("recording"); recognition && recognition.start(); }
-function stopRec(){ recordBtn.textContent="🎙️ Tieni premuto"; recordBtn.classList.remove("recording"); recognition && recognition.stop(); }
+recordBtn.onmousedown=startRec; recordBtn.onmouseup=stopRec; recordBtn.ontouchstart=startRec; recordBtn.ontouchend=stopRec;
+function startRec(){ recordBtn.textContent="🎙️ Sto ascoltando..."; recordBtn.classList.add("recording"); if(recognition) recognition.start(); }
+function stopRec(){ recordBtn.textContent="🎙️ Tieni premuto"; recordBtn.classList.remove("recording"); if(recognition) recognition.stop(); }
 
 /* ===== DRAW (nitido 10s + dissolvenza DOPO) ===== */
 
@@ -295,6 +251,14 @@ function initCanvas(){
   animate();
 }
 
+function checkDrawing(){
+  const elapsed=(Date.now()-startTime)/1000;
+  if(strokeCount>700 && elapsed<15) showDrawSupport("Sembra che tu stia scaricando molta tensione. Prenderti un momento per respirare può aiutare. Sei al sicuro qui.");
+  if(horizontal>70 && vertical>70) showDrawSupport("Il rispetto per la vita, nostra e degli altri, è fondamentale. Se stai provando rabbia o confusione, parlarne con qualcuno può aiutare.");
+}
+
+function showDrawSupport(text){ drawSupport.innerHTML=text; drawSupport.classList.add("show"); drawSupport.classList.remove("hidden"); }
+function resetDrawMetrics(){ strokeCount=0; horizontal=0; vertical=0; startTime=Date.now(); particles=[]; if(drawSupport) drawSupport.classList.remove("show"); if(drawSupport) drawSupport.classList.add("hidden"); }
 </script>
 
 </body>
