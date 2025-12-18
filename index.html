@@ -18,7 +18,14 @@ button.recording { background: #8b0000; }
 button.pulse { animation: pulse 2s infinite; }
 .hidden { display:none; }
 textarea { width:100%; height:150px; background:#1a1a1a; color:#f1f1f1; border:none; border-radius:12px; padding:12px; font-size:15px; resize:none; margin-top:16px; box-shadow: inset 0 0 10px rgba(255,255,255,0.05); }
-canvas { width:100%; height:240px; background:linear-gradient(to bottom,#1a1a1a,#0f0f0f); border-radius:8px; margin-top:16px; }
+canvas {
+  width:100%;
+  height:240px;
+  background:linear-gradient(to bottom,#1a1a1a,#0f0f0f);
+  border-radius:8px;
+  margin-top:16px;
+  touch-action: none; /* ✅ TOUCH FIX */
+}
 .support { background:#141414; border-left:3px solid #6f9cff; padding:12px; margin-top:16px; font-size:14px; color:#e0e0e0; opacity:0; transition: opacity 0.6s ease; }
 .support.show { opacity:1; }
 @keyframes fadeIn { from { opacity:0; } to { opacity:1; } }
@@ -288,19 +295,24 @@ function initCanvas(){
 let drawSupportShown = false;
 
 function checkDrawing(){
-  if(drawSupportShown) return;
 
   const elapsed = (Date.now() - startTime) / 1000;
 
-  if(strokeCount > 600 && elapsed > 5){
+  // 1️⃣ tensione continua
+  if(!drawSupportShown && strokeCount > 600 && elapsed > 5){
     drawSupportShown = true;
     showDrawSupport(
       "Sembra che tu stia scaricando molta tensione. Prenderti un momento per respirare può aiutare. Sei al sicuro qui."
     );
+    return;
   }
 
-  if(horizontal > 70 && vertical > 70){
-    showDrawSupport("Il rispetto per la vita, nostra e degli altri, è fondamentale. Se stai provando rabbia o confusione, parlarne con qualcuno può aiutare.");
+  // 2️⃣ caos / rabbia / confusione
+  if(!chaosSupportShown && directionChanges > 25){
+    chaosSupportShown = true;
+    showDrawSupport(
+      "Il rispetto per la vita, nostra e degli altri, è fondamentale. Se stai provando rabbia o confusione, parlarne con qualcuno può aiutare."
+    );
   }
 }
 
