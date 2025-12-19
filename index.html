@@ -113,6 +113,33 @@ const stressSupportMessages = [
   "Non sei solo in quello che provi. Prenditi il tempo che ti serve."
 ];
 
+const sadnessMessages = [
+  "Va bene sentirsi giù. Prenditi il tuo tempo per respirare e osservare cosa provi.",
+  "A volte ci sentiamo tristi senza un motivo preciso. Sei al sicuro qui.",
+  "Non devi affrontare tutto da solo. Anche scrivere o respirare può aiutare.",
+  "È normale avere momenti di sconforto. Qui puoi sentirti ascoltato.",
+  "La tristezza è parte dell’essere umano. Permettiti di viverla senza fretta."
+];
+
+
+const supportMessages = [
+  "Va bene cercare aiuto. Non sei solo in quello che provi.",
+  "Sentirsi soli può essere pesante. Qui puoi prenderti un momento per te.",
+  "A volte parlare con qualcuno aiuta a sentirsi meglio. Respira, sei al sicuro qui.",
+  "Hai il diritto di essere ascoltato. Anche solo scrivere è un modo per farlo.",
+  "È normale aver bisogno di supporto. Qui puoi sentirti accolto senza giudizio."
+];
+
+
+const confusionMessages = [
+  "Va bene sentirsi confusi. Fai un respiro e prenditi un momento per te.",
+  "A volte non sapere cosa fare è normale. Qui puoi rallentare senza fretta.",
+  "Può aiutare scrivere o disegnare quello che senti. Sei al sicuro qui.",
+  "La confusione non significa che sia sbagliato ciò che provi. Permettiti di esplorare con calma.",
+  "Quando tutto sembra confuso, piccoli passi aiutano a ritrovare il centro. Respira."
+];
+
+
 function randomMessage(arr){ return arr[Math.floor(Math.random()*arr.length)]; }
 
 /* ===== RELEASE ===== */
@@ -145,40 +172,93 @@ const stressWords = [
   "stress",
   "stanc",
   "esaust",
+  "sfin",
   "non ce la faccio",
   "sono al limite",
   "pressione",
-  "ansi",
+  "sotto pressione",
+  "troppo da fare",
+  "sopraffatt",
   "nervos",
-  "sopraffatt"
+  "ansi",
+  "agit",
+  "ho bisogno di una pausa",
+  "non respiro",
+  "mi sento pien",
+  "mi sento svuotat"
 ];
+
+
+/* ===== CONFUSION WORDS ===== */
+const confusionWords = [
+  "non capisco",
+  "sono confus",
+  "mi sento pers",
+  "mi sento confus",
+  "non so cosa fare",
+  "non so da dove iniziare",
+  "sono bloccat",
+  "mi sento pers",
+  "tutto confuso",
+  "non ci sto capendo nulla",
+  "ho la testa piena",
+  "non riesco a pensare"
+];
+
+
+/* ===== SUPPORT WORDS ===== */
+const needSupportWords = [
+  "ho bisogno di",
+  "avrei bisogno di aiuto",
+  "non so con chi parlare",
+  "mi sento solo",
+  "mi sento sola",
+  "nessuno mi ascolta",
+  "vorrei qualcuno",
+  "ho bisogno di parlare",
+  "ho bisogno di essere ascoltat",
+  "male"
+];
+
+
+/* ===== SADNESS WORDS ===== */
+const sadnessWords = [
+  "trist",
+  "piango",
+  "mi sento giù",
+  "sono a terra",
+  "abbattut",
+  "mi sento vuot",
+  "niente mi va",
+  "non ho voglia di niente",
+  "sono demoralizzat"
+];
+
+
 
 function checkText(text, box){
   const t = text.toLowerCase();
 
-  if(selfHarmWords.some(w => t.includes(w))){
-    box.innerHTML =
-      "Quello che provi merita ascolto e cura.<br>" +
-      "La vita è preziosa, anche quando pesa molto.<br>" +
-      "Se questo spazio non basta, parlarne con qualcuno può aiutare.";
-  }
-  else if(harmOthersWords.some(w => t.includes(w))){
-    box.innerHTML =
-      "Rabbia e dolore sono emozioni umane.<br>" +
-      "Il rispetto per la vita, nostra e degli altri, resta fondamentale.<br>" +
-      "Quando possibile, parlarne può aiutare a chiarire.";
-  }
-  else if(stressWords.some(w => t.includes(w))){
-    box.innerHTML = randomMessage(stressSupportMessages);
-  }
-  else {
-    box.classList.remove("show");
-    box.classList.add("hidden");
-    return;
+  const categories = [
+    { words: selfHarmWords, messages: ["Quello che provi merita ascolto e cura.<br>La vita è preziosa, anche quando pesa molto.<br>Se questo spazio non basta, parlarne con qualcuno può aiutare."] },
+    { words: harmOthersWords, messages: ["Rabbia e dolore sono emozioni umane.<br>Il rispetto per la vita, nostra e degli altri, resta fondamentale.<br>Quando possibile, parlarne può aiutare a chiarire."] },
+    { words: sadnessWords, messages: sadnessMessages },
+    { words: needSupportWords, messages: supportMessages },
+    { words: confusionWords, messages: confusionMessages },
+    { words: stressWords, messages: stressSupportMessages }
+  ];
+
+  for(const cat of categories){
+    if(cat.words.some(w => t.includes(w))){
+      box.innerHTML = randomMessage(cat.messages);
+      box.classList.add("show");
+      box.classList.remove("hidden");
+      return;
+    }
   }
 
-  box.classList.add("show");
-  box.classList.remove("hidden");
+  box.classList.remove("show");
+  box.classList.add("hidden");
 }
 
 writeText.addEventListener("input", e => checkText(e.target.value, writeSupport));
@@ -318,7 +398,7 @@ function initCanvas(){
   function checkDrawing(){
     const elapsed = (Date.now() - startTime) / 1000;
 
-    if(!drawSupportShown && strokeCount > 450 && elapsed > 4){
+    if(!drawSupportShown && strokeCount > 300 && elapsed > 4){
       drawSupportShown = true;
       showDrawSupport(
         "Sembra che tu stia scaricando molta tensione.<br>" +
@@ -328,7 +408,7 @@ function initCanvas(){
       return;
     }
 
-    if(!chaosSupportShown && directionChanges > 18){
+    if(!chaosSupportShown && directionChanges > 15){
       chaosSupportShown = true;
       showDrawSupport(
         "Il rispetto per la vita, nostra e degli altri, è fondamentale.<br>" +
