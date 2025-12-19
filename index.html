@@ -12,9 +12,9 @@ body { margin:0; background: linear-gradient(135deg,#0f0f0f,#1a1a2e); color:#f1f
 h1 { font-weight:600; font-size:1.8em; margin-bottom:16px; text-shadow:1px 1px 4px rgba(0,0,0,0.7); }
 p { color:#d0d0d0; line-height:1.6; }
 button { width:100%; padding:14px; margin-top:16px; background:linear-gradient(90deg,#1c1c1c,#2a2a2a); color:#f1f1f1; border:none; border-radius:12px; font-size:16px; cursor:pointer; transition: background 0.3s, transform 0.2s; }
-button:hover { transform: scale(1.03); } 
-button:active { transform: scale(0.98); } 
-button.recording { background: #8b0000; } 
+button:hover { transform: scale(1.03); }
+button:active { transform: scale(0.98); }
+button.recording { background: #8b0000; }
 button.pulse { animation: pulse 2s infinite; }
 .hidden { display:none; }
 textarea { width:100%; height:150px; background:#1a1a1a; color:#f1f1f1; border:none; border-radius:12px; padding:12px; font-size:15px; resize:none; margin-top:16px; box-shadow: inset 0 0 10px rgba(255,255,255,0.05); }
@@ -24,9 +24,18 @@ canvas {
   background:linear-gradient(to bottom,#1a1a1a,#0f0f0f);
   border-radius:8px;
   margin-top:16px;
-  touch-action: none; /* ✅ TOUCH FIX */
+  touch-action: none;
 }
-.support { background:#141414; border-left:3px solid #6f9cff; padding:12px; margin-top:16px; font-size:14px; color:#e0e0e0; opacity:0; transition: opacity 0.6s ease; }
+.support {
+  background:#141414;
+  border-left:3px solid #6f9cff;
+  padding:12px;
+  margin-top:16px;
+  font-size:14px;
+  color:#e0e0e0;
+  opacity:0;
+  transition: opacity 0.6s ease;
+}
 .support.show { opacity:1; }
 @keyframes fadeIn { from { opacity:0; } to { opacity:1; } }
 @keyframes pulse { 0%,100%{transform: scale(1);} 50%{transform: scale(1.05);} }
@@ -82,149 +91,168 @@ function openWrite(){ hideAll(); write.classList.remove('hidden'); }
 function openDraw(){ hideAll(); draw.classList.remove('hidden'); initCanvas(); }
 function openVoice(){ hideAll(); voice.classList.remove('hidden'); }
 
-/* ===== MESSAGES CASUALI ===== */
-const eliminatedMessages = [
-  "Non avere paura di esprimere i tuoi pensieri. Sfogarsi fa bene.",
-  "Liberare ciò che senti è un passo verso il tuo benessere.",
-  "Hai fatto bene a lasciare andare ciò che pesava.",
-  "Ricorda: esprimersi non è mai sbagliato."
-];
+/* ===== MESSAGGI RANDOM ===== */
 const releasedMessages = [
-  "Hai condiviso il tuo pensiero, anche solo con te stesso.",
+  "Hai condiviso qualcosa, anche solo con te stesso.",
   "Ogni parola lasciata andare è un piccolo sollievo.",
-  "Bene, hai fatto spazio dentro di te.",
-  "Lasciare andare fa parte del prendersi cura di sé."
+  "Hai fatto spazio dentro di te.",
+  "Lasciare andare è un atto di cura."
 ];
-function randomMessage(array){ return array[Math.floor(Math.random()*array.length)]; }
 
-/* ===== PARTICELLE DI RILASCIO ===== */
-function releaseParticles(){
-  const c = canvas; if(!c) return;
-  const ctx = c.getContext("2d");
-  let releaseParticlesArray = [];
-  for(let i=0;i<50;i++){
-    releaseParticlesArray.push({
-      x: c.width/2 + (Math.random()-0.5)*c.width/2,
-      y: c.height,
-      alpha: 1,
-      radius: Math.random()*5+2,
-      dy: -(Math.random()*2+1),
-      dx: (Math.random()-0.5)*1
-    });
-  }
-  function animateRelease(){
-    ctx.clearRect(0,0,c.width,c.height);
-    releaseParticlesArray.forEach((p,i)=>{
-      const grad=ctx.createRadialGradient(p.x,p.y,0,p.x,p.y,p.radius);
-      grad.addColorStop(0,`rgba(${200+Math.random()*55},${200+Math.random()*55},241,${p.alpha})`);
-      grad.addColorStop(1,`rgba(241,241,241,0)`);
-      ctx.fillStyle=grad;
-      ctx.beginPath();
-      ctx.arc(p.x,p.y,p.radius,0,Math.PI*2);
-      ctx.fill();
-      p.alpha-=0.01; p.x+=p.dx; p.y+=p.dy;
-      if(p.alpha<=0) releaseParticlesArray.splice(i,1);
-    });
-    if(releaseParticlesArray.length>0) requestAnimationFrame(animateRelease);
-  }
-  animateRelease();
-}
+const eliminatedMessages = [
+  "Hai scelto di non trattenere ciò che pesava.",
+  "Anche eliminare può essere liberatorio.",
+  "Non tutto deve restare.",
+  "Hai fatto ciò che serviva in questo momento."
+];
 
-/* ===== FUNZIONI RELEASE/ELIMINATE ===== */
+const stressSupportMessages = [
+  "Sembra che tu stia portando molto peso addosso.<br>Qui puoi fermarti un momento.",
+  "Sentirsi stanchi o sotto pressione è umano.<br>Non devi dimostrare nulla.",
+  "Anche solo scrivere qui è già un modo per alleggerire.",
+  "Non sei solo in quello che provi. Prenditi il tempo che ti serve."
+];
+
+function randomMessage(arr){ return arr[Math.floor(Math.random()*arr.length)]; }
+
+/* ===== RELEASE ===== */
 function release(){
-  hideAll(); done.classList.remove("hidden");
-  done.querySelector('p').innerHTML=randomMessage(releasedMessages);
-  releaseParticles();
+  hideAll();
+  done.classList.remove("hidden");
+  done.querySelector("p").innerHTML = randomMessage(releasedMessages);
 }
 function eliminate(){
-  hideAll(); eliminated.classList.remove("hidden");
-  eliminated.querySelector('p').innerHTML=randomMessage(eliminatedMessages);
-  releaseParticles();
+  hideAll();
+  eliminated.classList.remove("hidden");
+  eliminated.querySelector("p").innerHTML = randomMessage(eliminatedMessages);
 }
 function reset(){ location.reload(); }
 
 /* ===== SAFETY WORDS ===== */
-const selfHarmWords=["suicid","ammazzarm","ucciderm","voglio morire","non voglio vivere","farla finita","farmi del male","vorrei sparire","meglio morto"];
-const harmOthersWords=["ammazz","uccid","male","violen","fare del male","violenza","vendetta","gliela farò pagare","lo uccido","fare male"];
-function checkText(text,box){
-  const t=text.toLowerCase();
-  if(selfHarmWords.some(w=>t.includes(w))){
-    box.innerHTML=`La vita è un dono prezioso, anche quando sembra difficile da portare.<br>Quello che provi merita ascolto e cura.<br>Se questo spazio non basta, parlarne con qualcuno può aiutare.`;
-    box.classList.add("show"); box.classList.remove("hidden");
-  }else if(harmOthersWords.some(w=>t.includes(w))){
-    box.innerHTML=`La vita degli altri ha lo stesso valore della nostra.<br>Rabbia e dolore sono umani.<br>Quando possibile, parlarne con chi può aiutare a chiarire può fare la differenza.`;
-    box.classList.add("show"); box.classList.remove("hidden");
-  }else{ box.classList.remove("show"); box.classList.add("hidden"); }
+const selfHarmWords = [
+  "suicid","ammazzarm","ucciderm","voglio morire",
+  "non voglio vivere","farla finita","farmi del male",
+  "vorrei sparire","meglio morto"
+];
+
+const harmOthersWords = [
+  "ammazz","uccid","violen","fare del male",
+  "vendetta","gliela farò pagare","lo uccido"
+];
+
+/* ===== STRESS WORDS ===== */
+const stressWords = [
+  "stress",
+  "stanc",
+  "esaust",
+  "non ce la faccio",
+  "sono al limite",
+  "pressione",
+  "ansi",
+  "nervos",
+  "sopraffatt"
+];
+
+function checkText(text, box){
+  const t = text.toLowerCase();
+
+  if(selfHarmWords.some(w => t.includes(w))){
+    box.innerHTML =
+      "Quello che provi merita ascolto e cura.<br>" +
+      "La vita è preziosa, anche quando pesa molto.<br>" +
+      "Se questo spazio non basta, parlarne con qualcuno può aiutare.";
+  }
+  else if(harmOthersWords.some(w => t.includes(w))){
+    box.innerHTML =
+      "Rabbia e dolore sono emozioni umane.<br>" +
+      "Il rispetto per la vita, nostra e degli altri, resta fondamentale.<br>" +
+      "Quando possibile, parlarne può aiutare a chiarire.";
+  }
+  else if(stressWords.some(w => t.includes(w))){
+    box.innerHTML = randomMessage(stressSupportMessages);
+  }
+  else {
+    box.classList.remove("show");
+    box.classList.add("hidden");
+    return;
+  }
+
+  box.classList.add("show");
+  box.classList.remove("hidden");
 }
-writeText.addEventListener("input", e=>checkText(e.target.value, writeSupport));
+
+writeText.addEventListener("input", e => checkText(e.target.value, writeSupport));
 
 /* ===== VOICE ===== */
 let recognition;
 const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
 if(SR){
   recognition = new SR();
-  recognition.lang="it-IT";
-  recognition.continuous=true;
-  recognition.interimResults=true;
-  recognition.onresult=e=>{
-    let text="";
-    for(let i=0;i<e.results.length;i++) text+=e.results[i][0].transcript;
-    transcript.value=text;
-    checkText(text,voiceSupport);
-  };
-}
-recordBtn.onmousedown=startRec;
-recordBtn.onmouseup=stopRec;
-recordBtn.ontouchstart=startRec;
-recordBtn.ontouchend=stopRec;
-function startRec(){ recordBtn.textContent="🎙️ Sto ascoltando..."; recordBtn.classList.add("recording"); if(recognition) recognition.start(); }
-function stopRec(){ recordBtn.textContent="🎙️ Tieni premuto"; recordBtn.classList.remove("recording"); if(recognition) recognition.stop(); }
-
-const HOLD_TIME = 10000;
-const FADE_SPEED = 0.002;
-
-let particles = [];
-let drawing = false;
-let frozen = false;
-let lastX = 0, lastY = 0;
-let stopTime = null;
-let globalAlpha = 1;
-
-/* metriche disegno */
-let strokeCount = 0;
-let startTime = 0;
-let directionChanges = 0;
-let lastDirection = null;
-let drawSupportShown = false;
-let chaosSupportShown = false;
-
-/* coordinate corrette */
-function getPos(e, canvas){
-  const rect = canvas.getBoundingClientRect();
-  return {
-    x: (e.clientX - rect.left) * (canvas.width / rect.width),
-    y: (e.clientY - rect.top) * (canvas.height / rect.height)
+  recognition.lang = "it-IT";
+  recognition.continuous = true;
+  recognition.interimResults = true;
+  recognition.onresult = e => {
+    let text = "";
+    for(let i=0;i<e.results.length;i++) text += e.results[i][0].transcript;
+    transcript.value = text;
+    checkText(text, voiceSupport);
   };
 }
 
+recordBtn.onmousedown = startRec;
+recordBtn.onmouseup = stopRec;
+recordBtn.ontouchstart = startRec;
+recordBtn.ontouchend = stopRec;
+
+function startRec(){
+  recordBtn.textContent = "🎙️ Sto ascoltando...";
+  recordBtn.classList.add("recording");
+  if(recognition) recognition.start();
+}
+function stopRec(){
+  recordBtn.textContent = "🎙️ Tieni premuto";
+  recordBtn.classList.remove("recording");
+  if(recognition) recognition.stop();
+}
+
+/* ===== CANVAS COSTANTI ===== */
+const HOLD_TIME = 2000;
+const FADE_SPEED = 0.01;
+const IDLE_TIME = 5000; // 5 secondi prima della dissolvenza
+
+
+/* ===== CANVAS ===== */
 function initCanvas(){
   const c = canvas;
   const ctx = c.getContext("2d");
   c.width = c.offsetWidth;
   c.height = c.offsetHeight;
 
-  particles = [];
-  globalAlpha = 1;
-  frozen = false;
-  stopTime = null;
+  let particles = [];
+  let drawing = false;
+  let frozen = false;
+  let stopTime = null;
+  let globalAlpha = 1;
 
-  strokeCount = 0;
-  directionChanges = 0;
-  lastDirection = null;
-  drawSupportShown = false;
-  chaosSupportShown = false;
+  let lastX = 0, lastY = 0;
+  let startTime = 0;
+  let strokeCount = 0;
+  let directionChanges = 0;
+  let lastDirection = null;
+
+  let drawSupportShown = false;
+  let chaosSupportShown = false;
+
   drawSupport.classList.remove("show");
   drawSupport.classList.add("hidden");
+
+  function getPos(e){
+    const r = c.getBoundingClientRect();
+    return {
+      x: (e.clientX - r.left) * (c.width / r.width),
+      y: (e.clientY - r.top) * (c.height / r.height)
+    };
+  }
 
   function addParticle(x,y){
     particles.push({ x, y, r: 2.8 });
@@ -235,8 +263,12 @@ function initCanvas(){
     frozen = false;
     stopTime = null;
     startTime = Date.now();
+    strokeCount = 0;
+    directionChanges = 0;
+    lastDirection = null;
+ 	globalAlpha = 1;
 
-    const pos = getPos(e,c);
+    const pos = getPos(e);
     lastX = pos.x;
     lastY = pos.y;
 
@@ -245,7 +277,6 @@ function initCanvas(){
 
   c.onpointerup = e => {
     drawing = false;
-    frozen = true;
     stopTime = Date.now();
     c.releasePointerCapture(e.pointerId);
   };
@@ -261,7 +292,7 @@ function initCanvas(){
   c.onpointermove = e => {
     if(!drawing) return;
 
-    const pos = getPos(e,c);
+    const pos = getPos(e);
     const dx = pos.x - lastX;
     const dy = pos.y - lastY;
 
@@ -277,21 +308,57 @@ function initCanvas(){
     }
     lastDirection = dir;
 
-    addParticle(pos.x, pos.y);
+    addParticle(pos.x,pos.y);
     lastX = pos.x;
     lastY = pos.y;
 
     checkDrawing();
   };
 
+  function checkDrawing(){
+    const elapsed = (Date.now() - startTime) / 1000;
+
+    if(!drawSupportShown && strokeCount > 450 && elapsed > 4){
+      drawSupportShown = true;
+      showDrawSupport(
+        "Sembra che tu stia scaricando molta tensione.<br>" +
+        "Prenderti un momento per respirare può aiutare.<br>" +
+        "Sei al sicuro qui."
+      );
+      return;
+    }
+
+    if(!chaosSupportShown && directionChanges > 18){
+      chaosSupportShown = true;
+      showDrawSupport(
+        "Il rispetto per la vita, nostra e degli altri, è fondamentale.<br>" +
+        "Se stai provando rabbia o confusione, parlarne può aiutare."
+      );
+    }
+  }
+
+  function showDrawSupport(text){
+    drawSupport.innerHTML = text;
+    drawSupport.classList.add("show");
+    drawSupport.classList.remove("hidden");
+  }
+
   function animate(){
     ctx.clearRect(0,0,c.width,c.height);
 
-    if(frozen && stopTime && Date.now() - stopTime > HOLD_TIME){
-      globalAlpha -= FADE_SPEED;
-      if(globalAlpha < 0) globalAlpha = 0;
-    }
+   if(!drawing && stopTime && Date.now() - stopTime > IDLE_TIME){
+  frozen = true; }
 
+  if(frozen){
+  globalAlpha -= FADE_SPEED;
+
+  if(globalAlpha <= 0){
+    globalAlpha = 0;
+    particles = [];
+    frozen = false;
+    stopTime = null;
+  }
+}
     ctx.globalAlpha = globalAlpha;
 
     particles.forEach(p=>{
@@ -309,31 +376,6 @@ function initCanvas(){
   }
 
   animate();
-}
-
-function checkDrawing(){
-  const elapsed = (Date.now() - startTime) / 1000;
-
-  if(!drawSupportShown && strokeCount > 450 && elapsed > 4){
-    drawSupportShown = true;
-    showDrawSupport(
-      "Sembra che tu stia scaricando molta tensione. Prenderti un momento per respirare può aiutare. Sei al sicuro qui."
-    );
-    return;
-  }
-
-  if(!chaosSupportShown && directionChanges > 18){
-    chaosSupportShown = true;
-    showDrawSupport(
-      "Il rispetto per la vita, nostra e degli altri, è fondamentale. Se stai provando rabbia o confusione, parlarne con qualcuno può aiutare."
-    );
-  }
-}
-
-function showDrawSupport(text){
-  drawSupport.innerHTML = text;
-  drawSupport.classList.add("show");
-  drawSupport.classList.remove("hidden");
 }
 </script>
 
