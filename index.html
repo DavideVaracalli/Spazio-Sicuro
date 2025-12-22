@@ -7,30 +7,123 @@
 
 <style>
 * { box-sizing: border-box; font-family: system-ui, -apple-system, BlinkMacSystemFont, sans-serif; }
-body { margin:0; background: linear-gradient(135deg,#0f0f0f,#1a1a2e); color:#f1f1f1; display:flex; justify-content:center; align-items:center; height:100vh; }
-.container { width:100%; max-width:420px; padding:24px; text-align:center; animation: fadeIn 0.6s ease; }
-h1 { font-weight:600; font-size:1.8em; margin-bottom:16px; text-shadow:1px 1px 4px rgba(0,0,0,0.7); }
-p { color:#d0d0d0; line-height:1.6; }
-button { width:100%; padding:14px; margin-top:16px; background:linear-gradient(90deg,#1c1c1c,#2a2a2a); color:#f1f1f1; border:none; border-radius:12px; font-size:16px; cursor:pointer; transition: background 0.3s, transform 0.2s; }
+
+
+.welcome h1 {
+  margin-bottom: 28px;
+}
+
+.welcome .intro {
+  font-size: 18px;
+  margin-bottom: 22px;
+}
+
+.welcome .block {
+  margin-bottom: 20px;
+}
+
+.welcome .soft {
+  opacity: 0.85;
+}
+
+.welcome .disclaimer {
+  font-size: 14px;
+  opacity: 0.7;
+  margin-top: 28px;
+}
+
+
+.section-title {
+  font-size: 17px;
+  font-weight: 500;
+  margin-bottom: 18px;
+  opacity: 0.9;
+}
+
+
+body {
+  margin:0;
+  background: linear-gradient(135deg,#0f0f0f,#1a1a2e);
+  color:#f1f1f1;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  height:100vh;
+}
+
+.container {
+  width:100%;
+  max-width:440px;
+  padding:24px;
+  text-align:center;
+  animation: fadeIn 0.6s ease;
+}
+
+h1 {
+  font-weight:600;
+  font-size:1.9em;
+  margin-bottom:16px;
+  text-shadow:1px 1px 4px rgba(0,0,0,0.7);
+}
+
+p {
+  color:#d0d0d0;
+  line-height:1.7;
+  font-size:16px;
+}
+
+button {
+  width:100%;
+  padding:16px;
+  margin-top:16px;
+  background:linear-gradient(90deg,#1c1c1c,#2a2a2a);
+  color:#f1f1f1;
+  border:none;
+  border-radius:16px;
+  font-size:16px;
+  cursor:pointer;
+  transition: background 0.3s, transform 0.2s;
+}
+
 button:hover { transform: scale(1.03); }
 button:active { transform: scale(0.98); }
 button.recording { background: #8b0000; }
 button.pulse { animation: pulse 2s infinite; }
-.hidden { display:none; }
-textarea { width:100%; height:150px; background:#1a1a1a; color:#f1f1f1; border:none; border-radius:12px; padding:12px; font-size:15px; resize:none; margin-top:16px; box-shadow: inset 0 0 10px rgba(255,255,255,0.05); }
 
-/* CLICK INDICATOR */
-.click-indicator {
-  position: fixed; /* rispetto alla finestra */
-  width: 24px;
-  height: 24px;
-  border-radius: 50%;
-  background: rgba(170,190,255,0.55);
-  pointer-events: none;
-  transform: translate(-50%, -50%) scale(1);
-  transition: transform 0.2s ease, opacity 0.3s ease;
-  opacity: 0;
+button.back {
+  background:#141414;
+  font-size:14px;
+  margin-top:18px;
+  opacity: 0.75;
 }
+
+button.back:hover {
+  opacity: 1;
+  transform: scale(1.02);
+}
+
+button:focus,
+textarea:focus {
+  outline: 2px solid #6f9cff;
+  outline-offset: 3px;
+}
+
+.hidden { display:none; }
+
+textarea {
+  width:100%;
+  height:150px;
+  background:#1a1a1a;
+  color:#f1f1f1;
+  border:none;
+  border-radius:12px;
+  padding:12px;
+  font-size:15px;
+  resize:none;
+  margin-top:16px;
+  box-shadow: inset 0 0 10px rgba(255,255,255,0.05);
+}
+
 canvas {
   width:100%;
   height:240px;
@@ -39,6 +132,7 @@ canvas {
   margin-top:16px;
   touch-action: none;
 }
+
 .support {
   background:#141414;
   border-left:3px solid #6f9cff;
@@ -49,7 +143,21 @@ canvas {
   opacity:0;
   transition: opacity 0.6s ease;
 }
+
 .support.show { opacity:1; }
+
+.click-indicator {
+  position: fixed;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: rgba(170,190,255,0.55);
+  pointer-events: none;
+  transform: translate(-50%, -50%) scale(1);
+  transition: transform 0.2s ease, opacity 0.3s ease;
+  opacity: 0;
+}
+
 @keyframes fadeIn { from { opacity:0; } to { opacity:1; } }
 @keyframes pulse { 0%,100%{transform: scale(1);} 50%{transform: scale(1.05);} }
 </style>
@@ -57,17 +165,43 @@ canvas {
 
 <body>
 
-<div class="container" id="welcome">
+<div class="container welcome" id="welcome">
   <h1>Benvenuto nel tuo spazio sicuro</h1>
-  <p>Qui puoi scrivere, disegnare o parlare liberamente.<br>Nessuno ti giudica. Nulla viene salvato.</p>
+
+  <p class="intro">
+    Qui non devi dimostrare nulla.
+  </p>
+
+  <p class="block">
+    Questo è un luogo privato, anonimo e temporaneo.<br>
+    Nulla viene salvato o condiviso.
+  </p>
+
+  <p class="block">
+    Puoi scrivere, disegnare o parlare liberamente.<br>
+    Senza spiegazioni.<br>
+    Senza giudizio.
+  </p>
+
+  <p class="block soft">
+    Tutto ciò che lasci qui resta solo per te.
+  </p>
+
+  <p class="disclaimer">
+    Questo spazio non sostituisce un supporto professionale.<br>
+    È solo un posto dove fermarti un momento e respirare.
+  </p>
+
   <button class="pulse" onclick="goToModes()">Entra</button>
 </div>
 
 <div class="container hidden" id="modes">
-  <p>Scegli come esprimerti</p>
+
+<p class="section-title">Scegli come esprimerti</p>
   <button onclick="openWrite()">✍️ Scrivi</button>
   <button onclick="openDraw()">🖤 Disegna</button>
   <button onclick="openVoice()">🎙️ Parla</button>
+  <button class="back" onclick="goHome()">← Indietro</button>
 </div>
 
 <div class="container hidden" id="write">
@@ -75,6 +209,7 @@ canvas {
   <div id="writeSupport" class="support hidden"></div>
   <button onclick="release()">Lascia andare</button>
   <button onclick="eliminate()">Elimina</button>
+  <button class="back" onclick="goToModes()">← Indietro</button>
 </div>
 
 <div class="container hidden" id="draw">
@@ -82,6 +217,7 @@ canvas {
   <div id="drawSupport" class="support hidden"></div>
   <button onclick="release()">Lascia andare</button>
   <button onclick="eliminate()">Elimina</button>
+  <button class="back" onclick="goToModes()">← Indietro</button>
 </div>
 
 <div class="container hidden" id="voice">
@@ -91,16 +227,25 @@ canvas {
   <div id="voiceSupport" class="support hidden"></div>
   <button onclick="release()">Lascia andare</button>
   <button onclick="eliminate()">Elimina</button>
+  <button class="back" onclick="goToModes()">← Indietro</button>
 </div>
 
-<div class="container hidden" id="done"><p></p><button onclick="reset()">Torna all'inizio</button></div>
-<div class="container hidden" id="eliminated"><p></p><button onclick="reset()">Torna all'inizio</button></div>
+<div class="container hidden" id="done">
+  <p></p>
+  <button onclick="reset()">Torna all'inizio</button>
+</div>
+
+<div class="container hidden" id="eliminated">
+  <p></p>
+  <button onclick="reset()">Torna all'inizio</button>
+</div>
 
 <div id="clickIndicator" class="click-indicator"></div>
 
 <script>
 /* ===== NAV ===== */
 function hideAll(){ document.querySelectorAll('.container').forEach(c=>c.classList.add('hidden')); }
+function goHome(){ hideAll(); welcome.classList.remove('hidden'); }
 function goToModes(){ hideAll(); modes.classList.remove('hidden'); }
 function openWrite(){ hideAll(); write.classList.remove('hidden'); }
 function openDraw(){ hideAll(); draw.classList.remove('hidden'); initCanvas(); }
@@ -159,15 +304,25 @@ function randomMessage(arr){ return arr[Math.floor(Math.random()*arr.length)]; }
 
 /* ===== RELEASE ===== */
 function release(){
-  hideAll();
-  done.classList.remove("hidden");
-  done.querySelector("p").innerHTML = randomMessage(releasedMessages);
+  document.querySelectorAll("textarea").forEach(t=>{
+    t.style.transition="opacity 0.6s";
+    t.style.opacity=0;
+  });
+
+  setTimeout(()=>{
+    hideAll();
+    done.classList.remove("hidden");
+    done.querySelector("p").innerHTML = randomMessage(releasedMessages);
+  },600);
 }
+
+
 function eliminate(){
   hideAll();
   eliminated.classList.remove("hidden");
   eliminated.querySelector("p").innerHTML = randomMessage(eliminatedMessages);
 }
+
 function reset(){ location.reload(); }
 
 /* ===== SAFETY WORDS ===== */
@@ -217,7 +372,8 @@ const confusionWords = [
   "tutto confuso",
   "non ci sto capendo nulla",
   "ho la testa piena",
-  "non riesco a pensare"
+  "non riesco a pensare",
+"cosa non va"
 ];
 
 
@@ -250,6 +406,9 @@ const sadnessWords = [
 ];
 
 
+let lastSupportTime = 0;
+const SUPPORT_DELAY = 2000; // millisecondi
+
 
 function checkText(text, box){
   const t = text.toLowerCase();
@@ -265,6 +424,11 @@ function checkText(text, box){
 
   for(const cat of categories){
     if(cat.words.some(w => t.includes(w))){
+
+      // 🔒 evita messaggi troppo frequenti
+      if(Date.now() - lastSupportTime < SUPPORT_DELAY) return;
+      lastSupportTime = Date.now();
+
       box.innerHTML = randomMessage(cat.messages);
       box.classList.add("show");
       box.classList.remove("hidden");
@@ -276,7 +440,9 @@ function checkText(text, box){
   box.classList.add("hidden");
 }
 
+
 writeText.addEventListener("input", e => checkText(e.target.value, writeSupport));
+
 
 /* ===== VOICE ===== */
 let recognition;
@@ -287,57 +453,35 @@ if(SR){
   recognition.continuous = true;
   recognition.interimResults = true;
   recognition.onresult = e => {
-    let text = "";
-    for(let i=0;i<e.results.length;i++) text += e.results[i][0].transcript;
-    transcript.value = text;
+    let text="";
+    for(let i=0;i<e.results.length;i++) text+=e.results[i][0].transcript;
+    transcript.value=text;
     checkText(text, voiceSupport);
   };
 }
 
-recordBtn.onmousedown = startRec;
-recordBtn.onmouseup = stopRec;
-recordBtn.ontouchstart = startRec;
-recordBtn.ontouchend = stopRec;
-
-function startRec(){
-  recordBtn.textContent = "🎙️ Sto ascoltando...";
-  recordBtn.classList.add("recording");
-  if(recognition) recognition.start();
-}
-function stopRec(){
-  recordBtn.textContent = "🎙️ Tieni premuto";
-  recordBtn.classList.remove("recording");
-  if(recognition) recognition.stop();
-}
+recordBtn.onmousedown = ()=>{ recordBtn.classList.add("recording"); recognition && recognition.start(); };
+recordBtn.onmouseup = ()=>{ recordBtn.classList.remove("recording"); recognition && recognition.stop(); };
 
 /* ===== CLICK INDICATOR ===== */
-/* ===== CLICK INDICATOR (FIX DEFINITIVO) ===== */
-const clickIndicator = document.getElementById("clickIndicator");
-
-document.addEventListener("pointerdown", e => {
-  const btn = e.target.closest("button");
-  if (!btn) return;
-
-  const x = e.clientX;
-  const y = e.clientY;
-
-  clickIndicator.style.left = x + "px";
-  clickIndicator.style.top = y + "px";
-  clickIndicator.style.opacity = "1";
-  clickIndicator.style.transform = "translate(-50%, -50%) scale(1.5)";
-
-  setTimeout(() => {
-    clickIndicator.style.opacity = "0";
-    clickIndicator.style.transform = "translate(-50%, -50%) scale(1)";
-  }, 300);
+const clickIndicator=document.getElementById("clickIndicator");
+document.addEventListener("pointerdown", e=>{
+  const btn=e.target.closest("button");
+  if(!btn) return;
+  clickIndicator.style.left=e.clientX+"px";
+  clickIndicator.style.top=e.clientY+"px";
+  clickIndicator.style.opacity="1";
+  clickIndicator.style.transform="translate(-50%,-50%) scale(1.5)";
+  setTimeout(()=>{
+    clickIndicator.style.opacity="0";
+    clickIndicator.style.transform="translate(-50%,-50%) scale(1)";
+  },300);
 });
 
-
-/* ===== CANVAS COSTANTI ===== */
-const HOLD_TIME = 2000;
-const FADE_SPEED = 0.01;
-const IDLE_TIME = 5000; // 5 secondi prima della dissolvenza
-
+/* ===== CANVAS ===== */
+const HOLD_TIME=2000;
+const FADE_SPEED=0.01;
+const IDLE_TIME=5000;
 
 /* ===== CANVAS ===== */
 function initCanvas(){
