@@ -206,6 +206,11 @@ canvas {
 
 <div class="container hidden" id="write">
   <textarea id="writeText" placeholder="Scrivi come viene..."></textarea>
+<p class="soft" style="font-size:14px; opacity:0.75;">
+  In questo spazio possono comparire brevi messaggi di accompagnamento.<br>
+  Non sono risposte a ciò che scrivi e non interpretano quello che provi.
+</p>
+
   <div id="writeSupport" class="support hidden"></div>
   <button onclick="release()">Lascia andare</button>
   <button onclick="eliminate()">Elimina</button>
@@ -214,6 +219,10 @@ canvas {
 
 <div class="container hidden" id="draw">
   <canvas id="canvas"></canvas>
+<p class="soft" style="font-size:14px; opacity:0.75;">
+  In questo spazio possono comparire brevi messaggi di accompagnamento.<br>
+  Non sono risposte a ciò che scrivi e non interpretano quello che provi.
+</p>
   <div id="drawSupport" class="support hidden"></div>
   <button onclick="release()">Lascia andare</button>
   <button onclick="eliminate()">Elimina</button>
@@ -223,7 +232,11 @@ canvas {
 <div class="container hidden" id="voice">
   <p>Tieni premuto e parla</p>
   <button id="recordBtn">🎙️ Tieni premuto</button>
-  <textarea id="transcript" readonly placeholder="Le tue parole appariranno qui..."></textarea>
+  <textarea id="transcript" placeholder="Le tue parole appariranno qui..."></textarea>
+<p class="soft" style="font-size:14px; opacity:0.75;">
+  In questo spazio possono comparire brevi messaggi di accompagnamento.<br>
+  Non sono risposte a ciò che scrivi e non interpretano quello che provi.
+</p>
   <div id="voiceSupport" class="support hidden"></div>
   <button onclick="release()">Lascia andare</button>
   <button onclick="eliminate()">Elimina</button>
@@ -452,6 +465,13 @@ if(SR){
   recognition.lang = "it-IT";
   recognition.continuous = true;
   recognition.interimResults = true;
+
+recognition.onerror = () => {
+  voiceSupport.innerHTML =
+    "Se il microfono non funziona, puoi usare lo spazio di scrittura.";
+  voiceSupport.classList.add("show");
+};
+
   recognition.onresult = e => {
     let text="";
     for(let i=0;i<e.results.length;i++) text+=e.results[i][0].transcript;
